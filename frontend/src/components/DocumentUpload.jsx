@@ -244,7 +244,7 @@ const DocumentUpload = ({ userRole }) => {
                   <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                     <span>Size: {formatFileSize(doc.file_size)}</span>
                     {doc.word_count && <span>Words: {doc.word_count}</span>}
-                    {doc.page_count && <span>Pages: {doc.page_count}</span>
+                    {doc.page_count && <span>Pages: {doc.page_count}</span>}
                   </div>
                   <div className="flex items-center gap-2 mt-2">
                     {doc.processing_status === 'completed' ? (
