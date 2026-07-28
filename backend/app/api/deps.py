@@ -1,0 +1,25 @@
+from fastapi import APIRouter
+from app.api.endpoints import auth, students, faculty, admin, todos, courses, users, statistics, flashcards, quizzes, learning, study_plans, notes, assignments, audit_logs, roles, documents, rag, ai_features, agents
+
+api_router = APIRouter()
+
+api_router.include_router(auth.router, prefix="/auth", tags=["authentication"])
+api_router.include_router(students.router, prefix="/students", tags=["students"])
+api_router.include_router(faculty.router, prefix="/faculty", tags=["faculty"])
+api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
+api_router.include_router(todos.router, prefix="/todos", tags=["todos"])
+api_router.include_router(courses.router, prefix="/courses", tags=["courses"])
+api_router.include_router(users.router, prefix="/users", tags=["users"])
+api_router.include_router(statistics.router, prefix="/statistics", tags=["statistics"])
+api_router.include_router(flashcards.router, prefix="/flashcards", tags=["flashcards"])
+api_router.include_router(quizzes.router, prefix="/quizzes", tags=["quizzes"])
+api_router.include_router(learning.router, prefix="/learning", tags=["learning"])
+api_router.include_router(study_plans.router, prefix="/study-plans", tags=["study-plans"])
+api_router.include_router(notes.router, prefix="/notes", tags=["notes"])
+api_router.include_router(assignments.router, prefix="/assignments", tags=["assignments"])
+api_router.include_router(audit_logs.router, prefix="/audit-logs", tags=["audit-logs"])
+api_router.include_router(roles.router, prefix="/roles", tags=["roles"])
+api_router.include_router(documents.router, prefix="/documents", tags=["documents"])
+api_router.include_router(rag.router, prefix="/rag", tags=["rag"])
+api_router.include_router(ai_features.router, prefix="/ai", tags=["ai-features"])
+api_router.include_router(agents.router, prefix="/agents", tags=["agents"])

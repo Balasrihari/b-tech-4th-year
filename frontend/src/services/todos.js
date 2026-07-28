@@ -1,0 +1,9 @@
+import api from './api';
+
+export const todosService = {
+  getAll: () => api.get('/todos/'),
+  getById: (id) => api.get(`/todos/${id}`),
+  create: (data) => api.post('/todos/', data),
+  update: (id, data) => api.put(`/todos/${id}`, data),
+  delete: (id) => api.delete(`/todos/${id}`),
+};
