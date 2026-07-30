@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { BookOpen, FileText, Brain, Calendar, CheckSquare, TrendingUp, Layers, Award, BarChart3 } from 'lucide-react';
+import { BookOpen, FileText, Brain, Calendar, CheckSquare, TrendingUp, Layers, Award, BarChart3, MessageSquare, Sparkles, Lightbulb, Map } from 'lucide-react';
 import TodoList from '../components/TodoList';
 import FlashcardManager from '../components/FlashcardManager';
 import QuizManager from '../components/QuizManager';
@@ -9,6 +9,10 @@ import StudyPlanner from '../components/StudyPlanner';
 import NoteManager from '../components/NoteManager';
 import StudentAssignments from '../components/StudentAssignments';
 import DocumentUpload from '../components/DocumentUpload';
+import AIChat from '../components/AIChat';
+import DocumentQA from '../components/DocumentQA';
+import AIRecommendations from '../components/AIRecommendations';
+import AIRoadmap from '../components/AIRoadmap';
 import api from '../services/api';
 
 function StudentDashboard() {
@@ -137,6 +141,58 @@ function StudentDashboard() {
           >
             Documents
           </button>
+          <button
+            onClick={() => setActiveTab('ai-chat')}
+            className={`px-4 py-2 font-medium whitespace-nowrap ${
+              activeTab === 'ai-chat'
+                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <Sparkles size={16} />
+              AI Chat
+            </div>
+          </button>
+          <button
+            onClick={() => setActiveTab('document-qa')}
+            className={`px-4 py-2 font-medium whitespace-nowrap ${
+              activeTab === 'document-qa'
+                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <MessageSquare size={16} />
+              Document Q&A
+            </div>
+          </button>
+          <button
+            onClick={() => setActiveTab('recommendations')}
+            className={`px-4 py-2 font-medium whitespace-nowrap ${
+              activeTab === 'recommendations'
+                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <Lightbulb size={16} />
+              Recommendations
+            </div>
+          </button>
+          <button
+            onClick={() => setActiveTab('roadmap')}
+            className={`px-4 py-2 font-medium whitespace-nowrap ${
+              activeTab === 'roadmap'
+                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <Map size={16} />
+              AI Roadmap
+            </div>
+          </button>
         </div>
 
         {activeTab === 'overview' && (
@@ -246,6 +302,22 @@ function StudentDashboard() {
 
         {activeTab === 'documents' && (
           <DocumentUpload userRole={user?.role} />
+        )}
+
+        {activeTab === 'ai-chat' && (
+          <AIChat />
+        )}
+
+        {activeTab === 'document-qa' && (
+          <DocumentQA />
+        )}
+
+        {activeTab === 'recommendations' && (
+          <AIRecommendations />
+        )}
+
+        {activeTab === 'roadmap' && (
+          <AIRoadmap />
         )}
       </div>
     </div>
