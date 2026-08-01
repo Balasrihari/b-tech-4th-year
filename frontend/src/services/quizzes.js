@@ -9,4 +9,13 @@ export const quizzesService = {
   getAttempts: (quizId) => api.get(`/quizzes/${quizId}/attempts`),
   update: (id, data) => api.put(`/quizzes/${id}`, data),
   delete: (id) => api.delete(`/quizzes/${id}`),
+  
+  // Phase 11: New endpoints
+  generateQuestions: (params) => api.get('/quizzes/generate-questions', { params }),
+  createQuestionBank: (data) => api.post('/quizzes/question-bank', data),
+  getQuestionBanks: (topic) => api.get('/quizzes/question-bank', { params: { topic } }),
+  getQuestionBankQuestions: (bankId) => api.get(`/quizzes/question-bank/${bankId}/questions`),
+  generateAdaptiveQuiz: (data) => api.post('/quizzes/adaptive', data),
+  getQuizHistory: (params) => api.get('/quizzes/history', { params }),
+  getPerformanceAnalytics: (params) => api.get('/quizzes/performance-analytics', { params }),
 };

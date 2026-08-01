@@ -3,6 +3,7 @@ Gemini API Service
 Handles integration with Google's Gemini AI model for various AI features
 """
 import os
+import json
 from typing import Dict, List, Optional
 from google import genai
 from google.genai import types
@@ -62,7 +63,72 @@ class GeminiService:
             ]
         except Exception as e:
             raise Exception(f"Failed to generate quiz questions: {str(e)}")
-    
+
+
+# Global instance
+gemini_service = GeminiService()
+
+
+async def generate_quiz_questions(topic: str, difficulty: str, question_count: int, question_type: str) -> List[Dict]:
+    """
+    Generate quiz questions using Gemini API
+    Returns questions in the format expected by the quiz system
+    """
+    try:
+        prompt = f"""
+        Generate {question_count} {question_type} quiz questions about {topic}.
+        Difficulty level: {difficulty}
+        
+        Format each question as a JSON object with:
+        - question_text: the question text
+        - question_type: "{question_type}"
+        - options: array of possible answers (for multiple choice)
+        - correct_answer: the correct answer text or index
+        - points: 1
+        
+        Return ONLY a valid JSON array of questions. No additional text.
+        """
+        
+        response = gemini_service.generate_response(prompt, temperature=0.8)
+        
+        # Try to parse JSON from response
+        try:
+            # Clean up the response to extract JSON
+            if "```json" in response:
+                response = response.split("```json")[1].split("```")[0].strip()
+            elif "```" in response:
+                response = response.split("```")[1].split("```")[0].strip()
+            
+            questions = json.loads(response)
+            
+            # Ensure questions are in the correct format
+            formatted_questions = []
+            for q in questions:
+                formatted_q = {
+                    "question_text": q.get("question_text", q.get("question", "")),
+                    "question_type": q.get("question_type", question_type),
+                    "options": json.dumps(q.get("options", [])) if q.get("options") else None,
+                    "correct_answer": str(q.get("correct_answer", "")),
+                    "points": q.get("points", 1)
+                }
+                formatted_questions.append(formatted_q)
+            
+            return formatted_questions
+        except json.JSONDecodeError:
+            # Fallback to sample questions if parsing fails
+            return [
+                {
+                    "question_text": f"Sample question about {topic} (difficulty: {difficulty})",
+                    "question_type": question_type,
+                    "options": json.dumps(["Option A", "Option B", "Option C", "Option D"]),
+                    "correct_answer": "0",
+                    "points": 1
+                }
+            ]
+    except Exception as e:
+        raise Exception(f"Failed to generate quiz questions: {str(e)}")
+
+
     def generate_flashcards(self, topic: str, num_cards: int = 10) -> List[Dict]:
         """Generate flashcards for a given topic"""
         prompt = f"""

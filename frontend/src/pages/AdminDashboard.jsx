@@ -5,6 +5,8 @@ import UserManager from '../components/UserManager';
 import SystemStatistics from '../components/SystemStatistics';
 import AuditLogViewer from '../components/AuditLogViewer';
 import RoleManager from '../components/RoleManager';
+import DocumentStatistics from '../components/DocumentStatistics';
+import AIUsageStatistics from '../components/AIUsageStatistics';
 import api from '../services/api';
 
 function AdminDashboard() {
@@ -57,6 +59,26 @@ function AdminDashboard() {
             }`}
           >
             Statistics
+          </button>
+          <button
+            onClick={() => setActiveTab('documents')}
+            className={`px-4 py-2 font-medium ${
+              activeTab === 'documents'
+                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+            }`}
+          >
+            Documents
+          </button>
+          <button
+            onClick={() => setActiveTab('ai-usage')}
+            className={`px-4 py-2 font-medium ${
+              activeTab === 'ai-usage'
+                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+            }`}
+          >
+            AI Usage
           </button>
           <button
             onClick={() => setActiveTab('audit-logs')}
@@ -114,6 +136,14 @@ function AdminDashboard() {
 
         {activeTab === 'statistics' && (
           <SystemStatistics />
+        )}
+
+        {activeTab === 'documents' && (
+          <DocumentStatistics />
+        )}
+
+        {activeTab === 'ai-usage' && (
+          <AIUsageStatistics />
         )}
 
         {activeTab === 'audit-logs' && (

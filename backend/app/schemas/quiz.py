@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from datetime import datetime
 from app.models.quiz import QuizDifficulty
 from app.models.quiz_question import QuestionType
@@ -86,3 +86,85 @@ class QuizAttemptResponse(BaseModel):
 
 class QuizWithQuestions(QuizResponse):
     questions: List[QuizQuestionResponse]
+
+
+# PHASE 11: Additional Schemas
+
+class QuestionBankItem(BaseModel):
+    question_text: str
+    question_type: QuestionType
+    options: Optional[List[str]] = None
+    correct_answer: str
+    points: int = 1
+    order: int = 0
+
+
+class QuestionBankCreate(BaseModel):
+    topic: str
+    description: Optional[str] = None
+    difficulty: QuizDifficulty = QuizDifficulty.MEDIUM
+    questions: List[Dict[str, Any]]
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "topic": "Python Programming",
+                "description": "Basic Python concepts",
+                "difficulty": "medium",
+                "questions": [
+                    {
+                        "question_text": "What is Python?",
+                        "question_type": "multiple_choice",
+                        "options": ["A language", "A snake", "A tool", "A framework"],
+                        "correct_answer": "0",
+                        "points": 1,
+                        "order": 0
+                    }
+                ]
+            }
+        }
+
+
+class QuestionBankResponse(QuizResponse):
+    pass
+
+
+class AdaptiveQuizRequest(BaseModel):
+    topic: str
+    question_count: int = 5
+    time_limit: Optional[int] = None
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "topic": "Python Programming",
+                "question_count": 10,
+                "time_limit": 30
+            }
+        }
+
+
+class QuizHistoryResponse(BaseModel):
+    attempts: List[QuizAttemptResponse]
+    total_attempts: int
+    average_score: float
+    completed_count: int
+
+
+class TopicPerformance(BaseModel):
+    quiz_id: int
+    quiz_title: str
+    topic: str
+    average_score: float
+    attempts_count: int
+
+
+class QuizPerformanceAnalytics(BaseModel):
+    period_days: int
+    total_attempts: int
+    average_score: float
+    highest_score: float
+    lowest_score: float
+    improvement_rate: float
+    difficulty_distribution: Dict[str, int]
+    topic_performance: List[TopicPerformance]

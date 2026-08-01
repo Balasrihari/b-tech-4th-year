@@ -4,6 +4,7 @@ import { BookOpen, Users, FileText, ClipboardList, TrendingUp } from 'lucide-rea
 import CourseManager from '../components/CourseManager';
 import AssignmentManager from '../components/AssignmentManager';
 import DocumentUpload from '../components/DocumentUpload';
+import StudentMonitoring from '../components/StudentMonitoring';
 import api from '../services/api';
 
 function FacultyDashboard() {
@@ -72,6 +73,16 @@ function FacultyDashboard() {
           >
             Documents
           </button>
+          <button
+            onClick={() => setActiveTab('students')}
+            className={`px-4 py-2 font-medium ${
+              activeTab === 'students'
+                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+            }`}
+          >
+            Students
+          </button>
         </div>
 
         {activeTab === 'overview' && (
@@ -133,6 +144,10 @@ function FacultyDashboard() {
 
         {activeTab === 'documents' && (
           <DocumentUpload userRole={user?.role} />
+        )}
+
+        {activeTab === 'students' && (
+          <StudentMonitoring />
         )}
       </div>
     </div>
