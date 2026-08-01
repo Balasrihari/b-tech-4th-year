@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 import os
 import uuid
 from pathlib import Path
@@ -14,6 +14,8 @@ from app.schemas.document import (
 )
 from app.services.document_processor import DocumentProcessor
 from app.services.embedding_service import EmbeddingService
+from app.services.ocr_service import ocr_service
+from app.services.web_scraping_service import web_scraping_service
 
 router = APIRouter()
 
@@ -33,13 +35,82 @@ async def upload_document(
     description: str = None,
     course_id: int = None,
     file: UploadFile = File(...),
+    url: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Upload and process a document"""
+    """Upload and process a document (file or URL)"""
+    
+    # Handle URL upload
+    if url:
+        if not web_scraping_service.is_valid_url(url):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid URL format"
+            )
+        
+        try:
+            # Extract content from URL
+            content_data = web_scraping_service.extract_content_from_url(url)
+            
+            # Create document from URL content
+            document = Document(
+                title=title or content_data['title'],
+                description=description or content_data.get('metadata', {}).get('description', ''),
+                file_type='url',
+                file_size=len(content_data['content'].encode()),
+                word_count=content_data['word_count'],
+                page_count=1,
+                processing_status="processing",
+                uploaded_by_id=current_user.id,
+                course_id=course_id,
+                source_url=url
+            )
+            db.add(document)
+            db.commit()
+            db.refresh(document)
+            
+            # Process content
+            text = content_data['content']
+            chunks = document_processor.chunk_text(text)
+            
+            # Create chunks
+            for i, chunk_text in enumerate(chunks):
+                chunk = DocumentChunk(
+                    document_id=document.id,
+                    chunk_index=i,
+                    content=chunk_text,
+                    token_count=len(chunk_text.split())
+                )
+                db.add(chunk)
+            
+            # Generate embeddings
+            embedding_service.generate_embeddings_for_document(document.id, db)
+            
+            # Update document status
+            document.processing_status = "completed"
+            document.page_count = len(chunks)
+            db.commit()
+            db.refresh(document)
+            
+            return document
+            
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to process URL: {str(e)}"
+            )
+    
+    # Handle file upload
+    if not file:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Either file or URL must be provided"
+        )
+    
     # Validate file type
     file_extension = file.filename.split('.')[-1].lower()
-    valid_extensions = ['pdf', 'docx', 'pptx', 'xlsx', 'txt', 'md']
+    valid_extensions = ['pdf', 'docx', 'pptx', 'xlsx', 'txt', 'md', 'png', 'jpg', 'jpeg', 'tiff', 'bmp', 'gif']
     
     if file_extension not in valid_extensions:
         raise HTTPException(
@@ -62,9 +133,29 @@ async def upload_document(
             detail=f"Failed to save file: {str(e)}"
         )
     
-    # Process document
+    # Process document (handle images with OCR)
     try:
-        processed = document_processor.process_document(str(file_path), file_extension)
+        # Check if file is an image (OCR required)
+        if file_extension in ['png', 'jpg', 'jpeg', 'tiff', 'bmp', 'gif']:
+            # Preprocess image for better OCR
+            preprocessed_contents = ocr_service.preprocess_image(contents)
+            
+            # Extract text using OCR
+            text = ocr_service.extract_text_from_image(preprocessed_contents)
+            
+            processed = {
+                'text': text,
+                'chunks': document_processor.chunk_text(text),
+                'metadata': {
+                    'page_count': 1,
+                    'word_count': len(text.split()),
+                    'char_count': len(text),
+                    'ocr_used': True
+                }
+            }
+        else:
+            # Process regular document
+            processed = document_processor.process_document(str(file_path), file_extension)
     except Exception as e:
         # Clean up file if processing fails
         if file_path.exists():
@@ -76,16 +167,16 @@ async def upload_document(
     
     # Create document record
     db_document = Document(
-        user_id=current_user.id,
         title=title,
         description=description,
-        document_type=document_type,
+        file_type=file_extension,
         file_path=str(file_path),
         file_size=len(contents),
         page_count=processed['metadata'].get('page_count'),
         word_count=processed['metadata'].get('word_count'),
         char_count=processed['metadata'].get('char_count'),
         processing_status="completed",
+        uploaded_by_id=current_user.id,
         course_id=course_id
     )
     
@@ -98,9 +189,9 @@ async def upload_document(
     for idx, chunk_text in enumerate(processed['chunks']):
         db_chunk = DocumentChunk(
             document_id=db_document.id,
-            chunk_text=chunk_text,
             chunk_index=idx,
-            metadata=str(processed['metadata'])
+            content=chunk_text,
+            token_count=len(chunk_text.split())
         )
         db.add(db_chunk)
         chunks.append(db_chunk)
@@ -109,23 +200,7 @@ async def upload_document(
     
     # Generate and store embeddings
     try:
-        chunk_texts = [chunk.chunk_text for chunk in chunks]
-        chunk_ids = [f"doc_{db_document.id}_chunk_{chunk.chunk_index}" for chunk in chunks]
-        chunk_metadata = [
-            {
-                "document_id": db_document.id,
-                "chunk_index": chunk.chunk_index,
-                "document_title": db_document.title
-            }
-            for chunk in chunks
-        ]
-        
-        embedding_service.store_embeddings(
-            collection_name="documents",
-            documents=chunk_texts,
-            metadatas=chunk_metadata,
-            ids=chunk_ids
-        )
+        embedding_service.generate_embeddings_for_document(db_document.id, db)
     except Exception as e:
         # Log error but don't fail the upload
         print(f"Failed to generate embeddings: {str(e)}")
