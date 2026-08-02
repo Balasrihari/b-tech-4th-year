@@ -43,26 +43,33 @@ def create_demo_users(db):
     """Create demo users for all roles"""
     print("Creating demo users...")
     
+    # Generate proper bcrypt hashes for shorter passwords
+    from app.core.security import get_password_hash
+    
+    student_pass = get_password_hash("Student123!")
+    faculty_pass = get_password_hash("Faculty123!")
+    admin_pass = get_password_hash("Admin123!")
+    
     users = [
         # Students
         User(
             email="john.doe@student.edu",
             full_name="John Doe",
-            hashed_password="$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyY1qY1qY1qY",  # StudentPass123!
+            hashed_password=student_pass,
             role=UserRole.STUDENT,
             is_active=True
         ),
         User(
             email="jane.smith@student.edu",
             full_name="Jane Smith",
-            hashed_password="$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyY1qY1qY1qY",
+            hashed_password=student_pass,
             role=UserRole.STUDENT,
             is_active=True
         ),
         User(
             email="mike.johnson@student.edu",
             full_name="Mike Johnson",
-            hashed_password="$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyY1qY1qY1qY",
+            hashed_password=student_pass,
             role=UserRole.STUDENT,
             is_active=True
         ),
@@ -70,14 +77,14 @@ def create_demo_users(db):
         User(
             email="dr.williams@faculty.edu",
             full_name="Dr. Sarah Williams",
-            hashed_password="$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyY1qY1qY1qY",  # FacultyPass123!
+            hashed_password=faculty_pass,
             role=UserRole.FACULTY,
             is_active=True
         ),
         User(
             email="prof.brown@faculty.edu",
             full_name="Prof. James Brown",
-            hashed_password="$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyY1qY1qY1qY",
+            hashed_password=faculty_pass,
             role=UserRole.FACULTY,
             is_active=True
         ),
@@ -85,7 +92,7 @@ def create_demo_users(db):
         User(
             email="admin@university.edu",
             full_name="System Administrator",
-            hashed_password="$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyY1qY1qY1qY",  # AdminPass123!
+            hashed_password=admin_pass,
             role=UserRole.ADMIN,
             is_active=True
         ),
@@ -450,14 +457,14 @@ def main():
         print("=" * 60)
         print("\nDemo credentials:")
         print("Students:")
-        print("  - john.doe@student.edu / StudentPass123!")
-        print("  - jane.smith@student.edu / StudentPass123!")
-        print("  - mike.johnson@student.edu / StudentPass123!")
+        print("  - john.doe@student.edu / Student123!")
+        print("  - jane.smith@student.edu / Student123!")
+        print("  - mike.johnson@student.edu / Student123!")
         print("\nFaculty:")
-        print("  - dr.williams@faculty.edu / FacultyPass123!")
-        print("  - prof.brown@faculty.edu / FacultyPass123!")
+        print("  - dr.williams@faculty.edu / Faculty123!")
+        print("  - prof.brown@faculty.edu / Faculty123!")
         print("\nAdmin:")
-        print("  - admin@university.edu / AdminPass123!")
+        print("  - admin@university.edu / Admin123!")
         
     except Exception as e:
         print(f"\nError generating demo data: {e}")

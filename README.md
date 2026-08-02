@@ -161,16 +161,16 @@ docker-compose down
 After running the demo data generation script, the following users are available:
 
 ### Students
-- john.doe@student.edu / StudentPass123!
-- jane.smith@student.edu / StudentPass123!
-- mike.johnson@student.edu / StudentPass123!
+- john.doe@student.edu / Student123!
+- jane.smith@student.edu / Student123!
+- mike.johnson@student.edu / Student123!
 
 ### Faculty
-- dr.williams@faculty.edu / FacultyPass123!
-- prof.brown@faculty.edu / FacultyPass123!
+- dr.williams@faculty.edu / Faculty123!
+- prof.brown@faculty.edu / Faculty123!
 
 ### Admin
-- admin@university.edu / AdminPass123!
+- admin@university.edu / Admin123!
 
 ## AI Features
 
