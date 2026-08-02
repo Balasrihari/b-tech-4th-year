@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import Optional
 from pydantic import BaseModel
-from app.api.deps import get_db, get_current_user
+from app.db.database import get_db
+from app.auth.dependencies import get_current_user
 from app.models.user import User
 from app.models.document_chunk import DocumentChunk
 from app.services.rag_pipeline import RAGPipeline

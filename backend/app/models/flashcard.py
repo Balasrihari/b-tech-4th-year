@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.db.database import Base
+from datetime import datetime
 import enum
 
 
@@ -21,7 +22,7 @@ class Flashcard(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     deck_name = Column(String(100), default="Default")
     status = Column(SQLEnum(FlashcardStatus), default=FlashcardStatus.NEW)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships

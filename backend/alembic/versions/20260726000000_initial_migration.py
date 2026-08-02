@@ -7,7 +7,6 @@ Create Date: 2026-07-26 00:00:00.000000
 """
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = '001'
@@ -25,7 +24,7 @@ def upgrade() -> None:
         sa.Column('description', sa.String(length=255), nullable=True),
         sa.Column('permissions', sa.String(), nullable=True),
         sa.Column('is_active', sa.Boolean(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
         sa.PrimaryKeyConstraint('id')
     )
@@ -41,7 +40,7 @@ def upgrade() -> None:
         sa.Column('hashed_password', sa.String(), nullable=False),
         sa.Column('role', sa.Enum('student', 'faculty', 'admin', name='userrole'), nullable=False),
         sa.Column('is_active', sa.Boolean(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('email')
@@ -58,7 +57,7 @@ def upgrade() -> None:
         sa.Column('description', sa.Text(), nullable=True),
         sa.Column('faculty_id', sa.Integer(), nullable=False),
         sa.Column('is_active', sa.Boolean(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(['faculty_id'], ['users.id'], ),
         sa.PrimaryKeyConstraint('id'),
@@ -81,8 +80,8 @@ def upgrade() -> None:
         sa.Column('uploaded_by', sa.Integer(), nullable=False),
         sa.Column('course_id', sa.Integer(), nullable=True),
         sa.Column('is_processed', sa.Boolean(), nullable=True),
-        sa.Column('metadata', sa.Text(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('doc_metadata', sa.Text(), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(['course_id'], ['courses.id'], ),
         sa.ForeignKeyConstraint(['uploaded_by'], ['users.id'], ),
@@ -99,8 +98,8 @@ def upgrade() -> None:
         sa.Column('chunk_index', sa.Integer(), nullable=False),
         sa.Column('content', sa.Text(), nullable=False),
         sa.Column('embedding_vector', sa.Text(), nullable=True),
-        sa.Column('metadata', sa.Text(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('chunk_metadata', sa.Text(), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.ForeignKeyConstraint(['document_id'], ['documents.id'], ),
         sa.PrimaryKeyConstraint('id')
     )
@@ -117,7 +116,7 @@ def upgrade() -> None:
         sa.Column('due_date', sa.DateTime(timezone=True), nullable=True),
         sa.Column('status', sa.Enum('draft', 'published', 'closed', name='assignmentstatus'), nullable=True),
         sa.Column('max_score', sa.Integer(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(['course_id'], ['courses.id'], ),
         sa.ForeignKeyConstraint(['faculty_id'], ['users.id'], ),
@@ -139,7 +138,7 @@ def upgrade() -> None:
         sa.Column('feedback', sa.Text(), nullable=True),
         sa.Column('submitted_at', sa.DateTime(timezone=True), nullable=True),
         sa.Column('graded_at', sa.DateTime(timezone=True), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(['assignment_id'], ['assignments.id'], ),
         sa.ForeignKeyConstraint(['student_id'], ['users.id'], ),
@@ -158,7 +157,7 @@ def upgrade() -> None:
         sa.Column('status', sa.Enum('pending', 'in_progress', 'completed', name='todostatus'), nullable=True),
         sa.Column('due_date', sa.DateTime(timezone=True), nullable=True),
         sa.Column('completed_at', sa.DateTime(timezone=True), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
         sa.PrimaryKeyConstraint('id')
@@ -176,7 +175,7 @@ def upgrade() -> None:
         sa.Column('difficulty', sa.Enum('easy', 'medium', 'hard', name='quizdifficulty'), nullable=True),
         sa.Column('time_limit', sa.Integer(), nullable=True),
         sa.Column('is_active', sa.Boolean(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(['course_id'], ['courses.id'], ),
         sa.ForeignKeyConstraint(['created_by'], ['users.id'], ),
@@ -196,7 +195,7 @@ def upgrade() -> None:
         sa.Column('correct_answer', sa.Text(), nullable=True),
         sa.Column('points', sa.Integer(), nullable=True),
         sa.Column('order', sa.Integer(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.ForeignKeyConstraint(['quiz_id'], ['quizzes.id'], ),
         sa.PrimaryKeyConstraint('id')
     )
@@ -213,7 +212,7 @@ def upgrade() -> None:
         sa.Column('total_points', sa.Integer(), nullable=True),
         sa.Column('started_at', sa.DateTime(timezone=True), nullable=True),
         sa.Column('completed_at', sa.DateTime(timezone=True), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.ForeignKeyConstraint(['quiz_id'], ['quizzes.id'], ),
         sa.ForeignKeyConstraint(['student_id'], ['users.id'], ),
         sa.PrimaryKeyConstraint('id')
@@ -229,7 +228,7 @@ def upgrade() -> None:
         sa.Column('user_id', sa.Integer(), nullable=False),
         sa.Column('deck_name', sa.String(length=100), nullable=True),
         sa.Column('status', sa.Enum('new', 'learning', 'review', 'mastered', name='flashcardstatus'), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
         sa.PrimaryKeyConstraint('id')
@@ -246,7 +245,7 @@ def upgrade() -> None:
         sa.Column('next_review_date', sa.DateTime(timezone=True), nullable=True),
         sa.Column('interval_days', sa.Integer(), nullable=True),
         sa.Column('ease_factor', sa.Float(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.ForeignKeyConstraint(['flashcard_id'], ['flashcards.id'], ),
         sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
         sa.PrimaryKeyConstraint('id')
@@ -278,7 +277,7 @@ def upgrade() -> None:
         sa.Column('mastery_level', sa.Float(), nullable=True),
         sa.Column('time_spent_minutes', sa.Integer(), nullable=True),
         sa.Column('last_accessed', sa.DateTime(timezone=True), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(['course_id'], ['courses.id'], ),
         sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
@@ -294,7 +293,7 @@ def upgrade() -> None:
         sa.Column('user_id', sa.Integer(), nullable=False),
         sa.Column('topic', sa.String(length=255), nullable=False),
         sa.Column('confidence_score', sa.Float(), nullable=True),
-        sa.Column('recommended_actions', sa.Column(postgresql.JSON(), nullable=True)),
+        sa.Column('recommended_actions', sa.JSON(), nullable=True),
         sa.Column('detected_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
@@ -310,7 +309,7 @@ def upgrade() -> None:
         sa.Column('user_id', sa.Integer(), nullable=False),
         sa.Column('metric_name', sa.String(length=100), nullable=False),
         sa.Column('metric_value', sa.Float(), nullable=True),
-        sa.Column('additional_data', sa.Column(postgresql.JSON(), nullable=True)),
+        sa.Column('additional_data', sa.JSON(), nullable=True),
         sa.Column('recorded_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
         sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
         sa.PrimaryKeyConstraint('id')
@@ -328,7 +327,7 @@ def upgrade() -> None:
         sa.Column('notification_type', sa.Enum('info', 'warning', 'success', 'error', name='notificationtype'), nullable=True),
         sa.Column('is_read', sa.Boolean(), nullable=True),
         sa.Column('action_url', sa.String(length=500), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.Column('read_at', sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
         sa.PrimaryKeyConstraint('id')
@@ -346,7 +345,7 @@ def upgrade() -> None:
         sa.Column('ip_address', sa.String(length=45), nullable=True),
         sa.Column('user_agent', sa.String(length=500), nullable=True),
         sa.Column('details', sa.Text(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=True),
         sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
         sa.PrimaryKeyConstraint('id')
     )

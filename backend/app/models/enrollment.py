@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, DateTime, ForeignKey, Enum as SQLEnum
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.db.database import Base
+from datetime import datetime
 import enum
 
 
@@ -18,7 +19,7 @@ class Enrollment(Base):
     student_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     course_id = Column(Integer, ForeignKey("courses.id"), nullable=False)
     status = Column(SQLEnum(EnrollmentStatus), default=EnrollmentStatus.ACTIVE)
-    enrolled_at = Column(DateTime(timezone=True), server_default=func.now())
+    enrolled_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships

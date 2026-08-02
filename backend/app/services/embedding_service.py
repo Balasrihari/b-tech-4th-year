@@ -4,9 +4,14 @@ Handles text embedding generation using sentence-transformers
 """
 from typing import List
 from sentence_transformers import SentenceTransformer
-import chromadb
-from chromadb.config import Settings
 import numpy as np
+
+try:
+    import chromadb
+    from chromadb.config import Settings
+    CHROMADB_AVAILABLE = True
+except ImportError:
+    CHROMADB_AVAILABLE = False
 
 
 class EmbeddingService:
@@ -16,11 +21,16 @@ class EmbeddingService:
         self.model = SentenceTransformer(model_name)
         self.embedding_dim = self.model.get_sentence_embedding_dimension()
         
-        # Initialize ChromaDB client
-        self.chroma_client = chromadb.Client(Settings(
-            chroma_db_impl="duckdb+parquet",
-            persist_directory="./chroma_db"
-        ))
+        # Initialize ChromaDB client if available
+        self.chroma_client = None
+        if CHROMADB_AVAILABLE:
+            try:
+                self.chroma_client = chromadb.Client(Settings(
+                    chroma_db_impl="duckdb+parquet",
+                    persist_directory="./chroma_db"
+                ))
+            except Exception as e:
+                print(f"Warning: Could not initialize ChromaDB: {e}")
     
     def generate_embedding(self, text: str) -> List[float]:
         """Generate embedding for a single text"""
@@ -41,6 +51,10 @@ class EmbeddingService:
     def store_embeddings(self, collection_name: str, documents: List[str], 
                         metadatas: List[dict], ids: List[str]) -> None:
         """Store embeddings in ChromaDB"""
+        if not self.chroma_client:
+            print("Warning: ChromaDB not available, skipping storage")
+            return
+        
         # Generate embeddings
         embeddings = self.generate_embeddings(documents)
         
@@ -64,6 +78,9 @@ class EmbeddingService:
     def query_embeddings(self, collection_name: str, query_text: str, 
                        n_results: int = 5) -> dict:
         """Query embeddings for similar documents"""
+        if not self.chroma_client:
+            return {"documents": [], "metadatas": [], "distances": []}
+        
         # Generate query embedding
         query_embedding = self.generate_embedding(query_text)
         
@@ -83,6 +100,8 @@ class EmbeddingService:
     
     def delete_collection(self, collection_name: str) -> None:
         """Delete a collection from ChromaDB"""
+        if not self.chroma_client:
+            return
         try:
             self.chroma_client.delete_collection(name=collection_name)
         except:
@@ -90,6 +109,8 @@ class EmbeddingService:
     
     def get_collection_info(self, collection_name: str) -> dict:
         """Get information about a collection"""
+        if not self.chroma_client:
+            return {"name": collection_name, "count": 0}
         try:
             collection = self.chroma_client.get_collection(name=collection_name)
             count = collection.count()

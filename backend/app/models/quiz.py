@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Bool
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.db.database import Base
+from datetime import datetime
 import enum
 
 
@@ -22,7 +23,7 @@ class Quiz(Base):
     difficulty = Column(SQLEnum(QuizDifficulty), default=QuizDifficulty.MEDIUM)
     time_limit = Column(Integer)  # in minutes
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships

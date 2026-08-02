@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Floa
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.db.database import Base
+from datetime import datetime
 
 
 class DocumentChunk(Base):
@@ -12,8 +13,8 @@ class DocumentChunk(Base):
     chunk_index = Column(Integer, nullable=False)
     content = Column(Text, nullable=False)
     embedding_vector = Column(Text)  # JSON string of vector
-    metadata = Column(Text)  # JSON string of metadata
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    chunk_metadata = Column(Text)  # JSON string of metadata
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     
     # Relationships
     document = relationship("Document", back_populates="chunks")

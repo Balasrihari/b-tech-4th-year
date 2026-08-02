@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum as SQLEn
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.db.database import Base
+from datetime import datetime
 import enum
 
 
@@ -20,7 +21,7 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     role = Column(SQLEnum(UserRole), nullable=False, default=UserRole.STUDENT)
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships

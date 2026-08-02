@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, DateTime, ForeignKey, Float
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.db.database import Base
+from datetime import datetime
 
 
 class FlashcardReview(Base):
@@ -14,7 +15,7 @@ class FlashcardReview(Base):
     next_review_date = Column(DateTime(timezone=True))
     interval_days = Column(Integer)
     ease_factor = Column(Float, default=2.5)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     
     # Relationships
     flashcard = relationship("Flashcard", back_populates="reviews")

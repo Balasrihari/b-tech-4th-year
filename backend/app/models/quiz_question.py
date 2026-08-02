@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.db.database import Base
+from datetime import datetime
 import enum
 
 
@@ -23,7 +24,7 @@ class QuizQuestion(Base):
     correct_answer = Column(Text)
     points = Column(Integer, default=1)
     order = Column(Integer, default=0)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     
     # Relationships
     quiz = relationship("Quiz", back_populates="questions")

@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Floa
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.db.database import Base
+from datetime import datetime
 
 
 class Analytics(Base):
@@ -12,7 +13,7 @@ class Analytics(Base):
     metric_name = Column(String(100), nullable=False, index=True)
     metric_value = Column(Float)
     additional_data = Column(JSON)  # PostgreSQL JSON type
-    recorded_at = Column(DateTime(timezone=True), server_default=func.now())
+    recorded_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     
     # Relationships
     user = relationship("User", back_populates="analytics")

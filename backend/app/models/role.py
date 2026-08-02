@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 from app.db.database import Base
+from datetime import datetime
 
 
 class Role(Base):
@@ -11,5 +13,5 @@ class Role(Base):
     description = Column(String(255))
     permissions = Column(String)  # JSON string of permissions
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

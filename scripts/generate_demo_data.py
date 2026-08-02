@@ -18,18 +18,23 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "backend"))
 from app.db.database import Base, get_db
 from app.models.user import User, UserRole
 from app.models.course import Course
-from app.models.document import Document, DocumentChunk
-from app.models.assignment import Assignment, AssignmentSubmission
+from app.models.document import Document
+from app.models.document_chunk import DocumentChunk
+from app.models.assignment import Assignment
+from app.models.assignment_submission import AssignmentSubmission
 from app.models.todo import Todo
-from app.models.quiz import Quiz, QuizQuestion, QuizAttempt
-from app.models.flashcard import Flashcard, FlashcardReview
+from app.models.quiz import Quiz
+from app.models.quiz_question import QuizQuestion
+from app.models.quiz_attempt import QuizAttempt
+from app.models.flashcard import Flashcard
+from app.models.flashcard_review import FlashcardReview
 from app.models.enrollment import Enrollment
 from app.models.learning_progress import LearningProgress
 from app.models.note import Note
 from app.models.analytics import Analytics
 
 # Database connection
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/student_learning_db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./student_learning.db")
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
 
@@ -101,29 +106,25 @@ def create_demo_courses(db, faculty_users):
             title="Introduction to Machine Learning",
             code="CS401",
             description="Fundamental concepts of machine learning algorithms",
-            faculty_id=faculty_users[0].id,
-            credits=3
+            faculty_id=faculty_users[0].id
         ),
         Course(
             title="Data Structures and Algorithms",
             code="CS201",
             description="Core computer science concepts",
-            faculty_id=faculty_users[0].id,
-            credits=4
+            faculty_id=faculty_users[0].id
         ),
         Course(
             title="Web Development",
             code="CS301",
             description="Modern web application development",
-            faculty_id=faculty_users[1].id,
-            credits=3
+            faculty_id=faculty_users[1].id
         ),
         Course(
             title="Database Systems",
             code="CS302",
             description="Database design and management",
-            faculty_id=faculty_users[1].id,
-            credits=3
+            faculty_id=faculty_users[1].id
         ),
     ]
     
@@ -142,8 +143,7 @@ def create_demo_enrollments(db, student_users, courses):
         for course in courses[:2]:  # Each student enrolled in 2 courses
             enrollment = Enrollment(
                 student_id=student.id,
-                course_id=course.id,
-                enrolled_date=datetime.now() - timedelta(days=random.randint(1, 30))
+                course_id=course.id
             )
             enrollments.append(enrollment)
     
@@ -160,35 +160,26 @@ def create_demo_documents(db, users, courses):
     documents = [
         Document(
             title="Machine Learning Basics",
-            description="Introduction to ML concepts",
-            file_type="pdf",
+            document_type="pdf",
             file_size=1024000,
-            word_count=5000,
             page_count=20,
-            processing_status="completed",
-            uploaded_by_id=users[3].id,  # Faculty
+            uploaded_by=users[3].id,  # Faculty
             course_id=courses[0].id
         ),
         Document(
             title="Data Structures Notes",
-            description="Comprehensive DSA notes",
-            file_type="pdf",
+            document_type="pdf",
             file_size=2048000,
-            word_count=10000,
             page_count=40,
-            processing_status="completed",
-            uploaded_by_id=users[3].id,
+            uploaded_by=users[3].id,
             course_id=courses[1].id
         ),
         Document(
             title="React Tutorial",
-            description="Modern React development guide",
-            file_type="pdf",
+            document_type="pdf",
             file_size=1536000,
-            word_count=7500,
             page_count=30,
-            processing_status="completed",
-            uploaded_by_id=users[4].id,
+            uploaded_by=users[4].id,
             course_id=courses[2].id
         ),
     ]
@@ -203,8 +194,7 @@ def create_demo_documents(db, users, courses):
             chunk = DocumentChunk(
                 document_id=doc.id,
                 chunk_index=i,
-                content=f"Sample content chunk {i+1} for document {doc.title}",
-                token_count=100 + i * 10
+                content=f"Sample content chunk {i+1} for document {doc.title}"
             )
             chunks.append(chunk)
     
@@ -223,25 +213,25 @@ def create_demo_assignments(db, faculty_users, courses):
             title="ML Project 1",
             description="Implement a simple classifier",
             course_id=courses[0].id,
-            created_by_id=faculty_users[0].id,
+            faculty_id=faculty_users[0].id,
             due_date=datetime.now() + timedelta(days=7),
-            max_points=100
+            max_score=100
         ),
         Assignment(
             title="DSA Homework",
             description="Solve algorithm problems",
             course_id=courses[1].id,
-            created_by_id=faculty_users[0].id,
+            faculty_id=faculty_users[0].id,
             due_date=datetime.now() + timedelta(days=5),
-            max_points=50
+            max_score=50
         ),
         Assignment(
             title="Web App Project",
             description="Build a full-stack application",
             course_id=courses[2].id,
-            created_by_id=faculty_users[1].id,
+            faculty_id=faculty_users[1].id,
             due_date=datetime.now() + timedelta(days=14),
-            max_points=100
+            max_score=100
         ),
     ]
     
@@ -258,15 +248,15 @@ def create_demo_quizzes(db, student_users):
     quizzes = [
         Quiz(
             title="Machine Learning Quiz",
-            topic="Machine Learning",
+            description="Test your ML knowledge",
             difficulty="medium",
-            created_by_id=student_users[0].id
+            created_by=student_users[0].id
         ),
         Quiz(
             title="Data Structures Quiz",
-            topic="Data Structures",
+            description="Test your DSA knowledge",
             difficulty="hard",
-            created_by_id=student_users[0].id
+            created_by=student_users[0].id
         ),
     ]
     
@@ -316,10 +306,9 @@ def create_demo_flashcards(db, student_users):
     for student in student_users:
         for i in range(10):
             flashcard = Flashcard(
-                student_id=student.id,
+                user_id=student.id,
                 front=f"Question {i+1}",
-                back=f"Answer {i+1}",
-                topic="General Knowledge"
+                back=f"Answer {i+1}"
             )
             flashcards.append(flashcard)
     
@@ -331,8 +320,8 @@ def create_demo_flashcards(db, student_users):
     for flashcard in flashcards[:5]:
         review = FlashcardReview(
             flashcard_id=flashcard.id,
-            rating=random.randint(1, 5),
-            reviewed_at=datetime.now() - timedelta(days=random.randint(1, 7))
+            user_id=flashcard.user_id,
+            rating=random.randint(1, 5)
         )
         reviews.append(review)
     
@@ -350,12 +339,11 @@ def create_demo_todos(db, student_users):
     for student in student_users:
         for i in range(5):
             todo = Todo(
-                student_id=student.id,
+                user_id=student.id,
                 title=f"Task {i+1}",
                 description=f"Description for task {i+1}",
                 due_date=datetime.now() + timedelta(days=random.randint(1, 14)),
-                priority=random.choice(["low", "medium", "high"]),
-                completed=random.choice([True, False])
+                priority=random.choice(["low", "medium", "high"])
             )
             todos.append(todo)
     
@@ -373,10 +361,9 @@ def create_demo_notes(db, student_users):
     for student in student_users:
         for i in range(3):
             note = Note(
-                student_id=student.id,
+                user_id=student.id,
                 title=f"Note {i+1}",
-                content=f"Content for note {i+1}",
-                topic="Study Notes"
+                content=f"Content for note {i+1}"
             )
             notes.append(note)
     
@@ -393,13 +380,9 @@ def create_demo_analytics(db, student_users):
     analytics = []
     for student in student_users:
         analytics_data = Analytics(
-            student_id=student.id,
-            total_study_time=random.randint(100, 500),
-            quizzes_completed=random.randint(5, 20),
-            flashcards_reviewed=random.randint(50, 200),
-            average_quiz_score=random.randint(60, 95),
-            streak_days=random.randint(1, 30),
-            last_active_date=datetime.now() - timedelta(days=random.randint(0, 7))
+            user_id=student.id,
+            metric_name="study_time",
+            metric_value=random.randint(100, 500)
         )
         analytics.append(analytics_data)
     
@@ -417,12 +400,11 @@ def create_demo_learning_progress(db, student_users, courses):
     for student in student_users:
         for course in courses[:2]:
             lp = LearningProgress(
-                student_id=student.id,
+                user_id=student.id,
                 course_id=course.id,
                 topic="General",
-                mastery_level=random.randint(1, 5),
-                time_spent=random.randint(10, 100),
-                last_accessed=datetime.now() - timedelta(days=random.randint(0, 5))
+                mastery_level=random.random(),
+                time_spent_minutes=random.randint(10, 100)
             )
             progress.append(lp)
     

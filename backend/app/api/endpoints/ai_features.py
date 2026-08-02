@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional, List
-from app.api.deps import get_db, get_current_user
+from app.db.database import get_db
+from app.auth.dependencies import get_current_user
 from app.models.user import User
 from app.services.gemini_service import GeminiService
 from app.services.rag_pipeline import RAGPipeline

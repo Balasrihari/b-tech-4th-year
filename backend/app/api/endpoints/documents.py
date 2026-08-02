@@ -4,7 +4,8 @@ from typing import List, Optional
 import os
 import uuid
 from pathlib import Path
-from app.api.deps import get_db, get_current_user
+from app.db.database import get_db
+from app.auth.dependencies import get_current_user
 from app.models.user import User
 from app.models.document import Document, DocumentType
 from app.models.document_chunk import DocumentChunk

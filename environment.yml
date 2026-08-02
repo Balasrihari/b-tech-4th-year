@@ -1,0 +1,29 @@
+name: student-learning-assistant
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.14
+  - pip
+  - pip:
+    - fastapi
+    - uvicorn[standard]
+    - sqlalchemy
+    - alembic
+    - pydantic
+    - pydantic-settings
+    - python-jose[cryptography]
+    - passlib[bcrypt]
+    - python-multipart
+    - python-dotenv
+    - httpx
+    - PyPDF2
+    - python-docx
+    - python-pptx
+    - openpyxl
+    - pytesseract
+    - Pillow
+    - beautifulsoup4
+    - requests
+    - rank-bm25
+    - loguru

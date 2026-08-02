@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Floa
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.db.database import Base
+from datetime import datetime
 
 
 class WeakTopic(Base):
@@ -12,7 +13,7 @@ class WeakTopic(Base):
     topic = Column(String(255), nullable=False, index=True)
     confidence_score = Column(Float, default=0.0)  # 0.0 to 1.0
     recommended_actions = Column(Text)  # JSON string of recommendations
-    detected_at = Column(DateTime(timezone=True), server_default=func.now())
+    detected_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships

@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum as SQLEnum, BigInteger
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum as SQLEnum, BigInteger, Boolean
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.db.database import Base
+from datetime import datetime
 import enum
 
 
@@ -29,8 +30,8 @@ class Document(Base):
     uploaded_by = Column(Integer, ForeignKey("users.id"), nullable=False)
     course_id = Column(Integer, ForeignKey("courses.id"), nullable=True)
     is_processed = Column(Boolean, default=False)
-    metadata = Column(Text)  # JSON string of metadata
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    doc_metadata = Column(Text)  # JSON string of metadata
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships

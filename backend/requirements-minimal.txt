@@ -1,0 +1,29 @@
+# Minimal requirements for Python 3.14 compatibility
+# Note: Some advanced AI features (vector DB, cross-encoder) may not work with Python 3.14
+# These can be added later when packages support Python 3.14
+
+fastapi
+uvicorn[standard]
+sqlalchemy
+alembic
+pydantic
+pydantic-settings
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+python-dotenv
+httpx
+# Document processing libraries
+PyPDF2
+python-docx
+python-pptx
+openpyxl
+# Note: pytesseract and Pillow may have issues with Python 3.14
+# Try installing them separately with --prefer-binary
+# Web scraping
+beautifulsoup4
+requests
+# Text processing
+rank-bm25
+# Logging
+loguru
